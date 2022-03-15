@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class PlayerMovement : NetworkBehaviour
 {
+   [SyncVar(hook = nameof(NumCountChange))]
+   int numCount = 0;
+
    private void HandleMovement()
     {
         if (isLocalPlayer)
@@ -28,21 +31,38 @@ public class PlayerMovement : NetworkBehaviour
 
         /*if(isServer && transform.position.y > 20)
         {
-            PlayerToHight();
+            PlayerToHigh();
         }*/
     }
 
+    
     [Command]
     void MessageCheck()
     {
         Debug.Log("Received message from client!");
+        numCount += 1;
+        ServerAcklowledgement();
     }
 
-    [ClientRpc]
-    void PlayerToHight()
+    //Update change only on target client
+    //ex: pickup item inventory update information
+    [TargetRpc]
+    void ServerAcklowledgement()
     {
-        Debug.Log("Too higth!");
+        Debug.Log("Receiverd message from server!");
     }
 
+    //(update changes can be seen on all the clients)
+    [ClientRpc]
+    void PlayerToHigh()
+    {
+        Debug.Log("Too high!");
+    }
+
+    
+    void NumCountChange(int oldCount, int newCount)
+    {
+        Debug.Log($"We had {oldCount} num , now we have {newCount} num ");
+    }
 
 }
